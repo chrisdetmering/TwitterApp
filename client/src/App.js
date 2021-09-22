@@ -3,7 +3,7 @@ import React from 'react'
 import { Route } from 'react-router';
 import Home from "./Home"
 import TwitterSearch from "./TwitterSearch"
-import TwitterLive from "./TwitterLive"
+import TweetGallery from "./TweetGallery"
 import NavBar from "./components/NavBar"
 
 
@@ -15,7 +15,7 @@ export default function App() {
       <NavBar />
       <Route exact path="/" component={Home} />
       <Route exact path="/TwitterSearch" component={TwitterSearch} />
-      <Route exact path="/TwitterLive" component={TwitterLive} />
+      <Route exact path="/TweetGallery" component={TweetGallery} />
       </div>
     </div>
   )

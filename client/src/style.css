@@ -1,13 +1,13 @@
-#app-body {
+/* #app-body {
   height: 1050px;
   width: 100%;
   background-image: url("./images/49ersstadium.jpg");
   background-blend-mode: overlay;
-  /* opacity: 0.6; */
-}
+  opacity: 0.6;
+} */
 
 #main-title{
-  color:white;
+  /* color:white; */
   padding:20px;
   /* margin: 10px; */
   font-size: 60px;
@@ -21,11 +21,11 @@
   margin: 5px;
   text-align: right;
   text-decoration: none;
-  color:white;
+  /* color:white; */
 }
 
 .nav-bar-link-text{
-  color:white;
+  /* color:white; */
   text-decoration:"none";
   font-size: 35px;
   font-family: 'Permanent Marker', cursive;
@@ -40,7 +40,7 @@
 
 #home-body p{
   font-family: 'Archivo Black', sans-serif;
-  color:white;
+  /* color:white; */
   font-size: 30px;
   
 }

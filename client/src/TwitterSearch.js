@@ -1,20 +1,21 @@
 import React from 'react';
-import FollowedAccountList from './components/FollowedAccountList';
 import AccountSearchBar from './components/AccountSearchBar';
 
 export default function TwitterSearch() {
+    
+    function handleSearch(e, query) {
+        e.preventDefault();
+        setCurrentPageUrl(`https://api.twitter.com/2/tweets/search/recent?query=${query}&tweet.fields=public_metrics&expansions=author_id&user.fields=profile_image_url,verified`);
+      }
+    
     return (
         <div className="container" >
             <h1 className="page-title">Search</h1>
             <div className="row">
                 <div className="col-3">
-                    <h2>My Stream</h2>
-                    <FollowedAccountList />
-                </div>
-                <div className="col-6">
                     <div className="row">
-                        <p>Search by name, content or hashtag</p>
-                        <AccountSearchBar />
+                        {/* <p>Search by name, content or hashtag</p> */}
+                        <AccountSearchBar handleSearch={handleSearch} />
                     </div>
                     <br />
                     <div className="row">
@@ -22,8 +23,8 @@ export default function TwitterSearch() {
                     </div>
                     
                 </div>
-                <div className="col-2">
-
+                <div className="col-9">
+                    <h2>Results</h2>
                 </div>
             </div>
         

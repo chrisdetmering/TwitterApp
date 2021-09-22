@@ -9,7 +9,7 @@ export default function NavBar() {
             <Link className="nav-bar-link-text" style={{textDecoration:"none"}} to='/'>Home</Link>
           </li>
           <li className="nav-bar-links">
-            <Link className="nav-bar-link-text " style={{textDecoration:"none"}} to='/TwitterLive'>Live</Link>
+            <Link className="nav-bar-link-text " style={{textDecoration:"none"}} to='/TweetGallery'>Tweet Gallery</Link>
           </li> 
           <li className="nav-bar-links">
             <Link className="nav-bar-link-text" style={{textDecoration:"none"}} to='/TwitterSearch'>Search</Link>

@@ -1,179 +1,78 @@
 const express = require('express');
-const path = require('path')
-const http = require('http')
-const socketIo = require('socket.io')
-const needle = require('needle')
+const path = require('path');
 const PORT = process.env.PORT || 3000;
-const config = require("dotenv").config();
-const TOKEN = process.env.BEARER_TOKEN
+const axios = require('axios');
+const config = require("dotenv").config()
+const token = process.env.BEARER_TOKEN;
+const http = require('http')
+
+
+// const http = require('http')
+;
+// const TOKEN = process.env.BEARER_TOKEN
+// const server = http.createServer(app)
 
 const app = express();
-const server = http.createServer(app)
-const io = socketIo(server)
+
 
 app.use(express.static(path.join(__dirname, "client", "build")));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../', 'client', 'public', 'index.html'))
-})
+app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
 
-// Open a realtime stream of Tweets, filtered according to rules
-// https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/quick-start
-
+console.log("token: " + token)
 
 
 // The code below sets the bearer token from your environment variables
 // To set environment variables on macOS or Linux, run the export command below from the terminal:
 // export BEARER_TOKEN='YOUR-TOKEN'
-const token = process.env.BEARER_TOKEN;
 
-const rulesURL = 'https://api.twitter.com/2/tweets/search/stream/rules';
-const streamURL = 'https://api.twitter.com/2/tweets/search/stream?tweet.fields=public_metrics&expansions=author_id&user.fields=profile_image_url,verified';
-//.fields=profile_image_url,verified
 
-// this sets up two rules - the value is the search terms to match on, and the tag is an identifier that
-// will be applied to the Tweets return to show which rule they matched
-// with a standard project with Basic Access, you can add up to 25 concurrent rules to your stream, and
-// each rule can be up to 512 characters long
+//const endpointUrl = "https://api.twitter.com/2/tweets/search/recent?query={query}&tweet.fields=public_metrics&expansions=author_id&user.fields=profile_image_url,verified";
+const endpointUrl = "https://api.twitter.com/2/tweets/search/recent";
 
-// Edit rules as desired below
-const rules = [{value: "coding"}];
-//(from:mattbarrows OR from:grantcohn OR from:49erswebzone)
+async function getRequest() {
 
-async function getAllRules() {
+    // Edit query parameters below
+    // specify a search query, and any additional fields that are required
+    // by default, only the Tweet ID and text fields are returned
+    const params = {
+        'query': '49ers',
+        'tweet.fields': 'author_id'
+    }
 
-    const response = await needle('get', rulesURL, {
+    const res = await axios.get(endpointUrl, params, {
         headers: {
-            "authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`
+            
         }
+        
     })
+    
 
-    if (response.statusCode !== 200) {
-        console.log("Error:", response.statusMessage, response.statusCode)
-        throw new Error(response.body);
+
+    if (res.body) {
+        console.log(res.body)
+        return res.body;
+    } else {
+        throw new Error('Unsuccessful request');
     }
-    console.log(response.body)
-    return (response.body);
 }
 
-async function deleteAllRules(rules) {
-
-    if (!Array.isArray(rules.data)) {
-        return null;
-    }
-
-    const ids = rules.data.map(rule => rule.id);
-
-    const data = {
-        "delete": {
-            "ids": ids
-        }
-    }
-
-    const response = await needle('post', rulesURL, data, {
-        headers: {
-            "content-type": "application/json",
-            "authorization": `Bearer ${token}`
-        }
-    })
-
-    if (response.statusCode !== 200) {
-        throw new Error(response.body);
-    }
-
-    return (response.body);
-
-}
-
-async function setRules() {
-
-    const data = {
-        "add": rules
-    }
-
-    const response = await needle('post', rulesURL, data, {
-        headers: {
-            "content-type": "application/json",
-            "authorization": `Bearer ${token}`
-        }
-    })
-
-    if (response.statusCode !== 201) {
-        throw new Error(response.body);
-    }
-
-    return (response.body);
-
-}
-
-function streamConnect(socket) {
-
-    const stream = needle.get(streamURL, {
-        headers: {
-            "User-Agent": "v2FilterStreamJS",
-            "Authorization": `Bearer ${token}`
-        },
-        timeout: 20000
-    });
-
-    stream.on('data', data => {
-        try {
-            const json = JSON.parse(data);
-            // console.log(json);
-            socket.emit('tweet', json)
-            // A successful connection resets retry count.
-            retryAttempt = 0;
-        } catch (e) {
-            if (data.detail === "This stream is currently at the maximum allowed connection limit.") {
-                console.log(data.detail)
-                process.exit(1)
-            } else {
-                // Keep alive signal received. Do nothing.
-            }
-        }
-    }).on('err', error => {
-        if (error.code !== 'ECONNRESET') {
-            console.log(error.code);
-            process.exit(1);
-        } else {
-            // This reconnection logic will attempt to reconnect when a disconnection is detected.
-            // To avoid rate limits, this logic implements exponential backoff, so the wait time
-            // will increase if the client cannot reconnect to the stream. 
-            setTimeout(() => {
-                console.warn("A connection error occurred. Reconnecting...")
-                streamConnect(++retryAttempt);
-            }, 2 ** retryAttempt)
-        }
-    });
-
-    return stream;
-
-}
-
-
-io.on('connection', async () => {
-    console.log('Client connected...')
-
-    let currentRules;
+(async () => {
 
     try {
-        // Gets the complete list of rules currently applied to the stream
-        currentRules = await getAllRules();
-
-        // Delete all rules. Comment the line below if you want to keep your existing rules.
-        await deleteAllRules(currentRules);
-
-        // Add rules to the stream. Comment the line below if you don't want to add new rules.
-        await setRules();
+        // Make request
+        const response = await getRequest();
+        console.dir(response, {
+            depth: null
+        });
 
     } catch (e) {
-        console.error(e);
-        process.exit(1);
+        console.log(e);
+        process.exit(-1);
     }
+    process.exit();
+})();
 
-    // Listen to the stream.
-    streamConnect(io);
-})
-
-
-server.listen(PORT, () => console.log(`Server is listening on port: ${PORT}`));
+// search link
+// https://api.twitter.com/2/tweets/search/recent?query={query}&tweet.fields=public_metrics&expansions=author_id&user.fields=profile_image_url,verified
