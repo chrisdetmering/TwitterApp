@@ -3,7 +3,7 @@ const path = require('path');
 const PORT = process.env.PORT || 3000;
 const axios = require('axios');
 const config = require("dotenv").config()
-const token = process.env.BEARER_TOKEN;
+const token = "AAAAAAAAAAAAAAAAAAAAAG6oTgEAAAAAcel3ytVjJgmlYxUb8%2FBvXMBxVP0%3DXgjUoTBlEENsKc7JL5fNYedXsajFIUXQubZdDfeRY6F8KYdr6U";
 
 const app = express();
 
@@ -24,7 +24,7 @@ const endpointUrl = "https://api.twitter.com/2/tweets/search/recent?query=49ers&
 async function getRequest() {
 
     const res = await axios.get(endpointUrl, {
-        headers: {Authorization: `Bearer ${token}`}    
+        headers: { Authorization: `Bearer ${token}` }
     })
 
     if (res.body) {
